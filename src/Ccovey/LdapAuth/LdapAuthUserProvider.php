@@ -77,6 +77,10 @@ class LdapAuthUserProvider implements Auth\UserProviderInterface
      */
     public function retrieveByCredentials(array $credentials)
     {
+        if (! $user = $credentials[$this->getUsernameField()]) {
+            throw new InvalidArgumentException;
+        }
+
         if ($this->model) {
             $query = $this->createModel()->newQuery();
 
@@ -90,15 +94,8 @@ class LdapAuthUserProvider implements Auth\UserProviderInterface
                 return $this->retrieveByID($model->getKey(), $model->{$this->getUsernameField()});
             }
         }
-        return $this->retrieveByID( $credentials[$this->getUsernameField()] );
-    }
 
-    /**
-     * @return string
-     */
-    public function getUsernameField()
-    {
-        return (\Config::has('auth.username_field')) ? \Config::get('auth.username_field') : 'username';
+        return $this->retrieveByID($user);
     }
 
     /**
@@ -121,12 +118,12 @@ class LdapAuthUserProvider implements Auth\UserProviderInterface
      */
     protected function setInfoArray($infoCollection)
     {
-    	/*
-		* in app/auth.php set the fields array with each value
-		* as a field you want from active directory
-		* If you have 'user' => 'samaccountname' it will set the $info['user'] = $infoCollection->samaccountname
-		* refer to the adLDAP docs for which fields are available.
-    	*/
+        /*
+        * in app/auth.php set the fields array with each value
+        * as a field you want from active directory
+        * If you have 'user' => 'samaccountname' it will set the $info['user'] = $infoCollection->samaccountname
+        * refer to the adLDAP docs for which fields are available.
+        */
         if ( ! empty($this->config['fields'])) {
             foreach ($this->config['fields'] as $k => $field) {
                 if ($k == 'groups') {
@@ -146,9 +143,9 @@ class LdapAuthUserProvider implements Auth\UserProviderInterface
         }
         
         /*
-		* I needed a user list to populate a dropdown
-		* Set userlist to true in app/config/auth.php and set a group in app/config/auth.php as well
-		* The table is the OU in Active directory you need a list of.
+        * I needed a user list to populate a dropdown
+        * Set userlist to true in app/config/auth.php and set a group in app/config/auth.php as well
+        * The table is the OU in Active directory you need a list of.
         */
         if ( ! empty($this->config['userList'])) {
             $info['userlist'] = $this->ad->folder()->listing(array($this->config['group']));
@@ -222,5 +219,10 @@ class LdapAuthUserProvider implements Auth\UserProviderInterface
     public function getModel()
     {
         return $this->model;
+    }
+
+    protected function getUsernameField()
+    {
+        return isset($this->config['username_field'])?$this->config['username_field']:'username';
     }
 }
