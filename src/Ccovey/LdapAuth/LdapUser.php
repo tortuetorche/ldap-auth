@@ -44,7 +44,7 @@ class LdapUser implements Auth\UserInterface
 	 */
 	public function getRememberToken()
 	{
-		return $this->attributes['remember_token'];
+		return array_get($this->attributes, $this->getRememberTokenName());
 	}
 
 	/**
@@ -55,7 +55,7 @@ class LdapUser implements Auth\UserInterface
 	 */
 	public function setRememberToken($value)
 	{
-		$this->attributes['remember_token'] = $value;
+		$this->attributes[$this->getRememberTokenName()] = $value;
 	}
 
 	/**
