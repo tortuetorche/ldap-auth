@@ -88,3 +88,34 @@ You may also get a complete user list for a specific OU by defining the `userLis
 Model Usage
 -----------
 You can still use a model with this implementation as well if you want. ldap-auth will take your fields from ldap and attach them to the model allowing you to access things such as roles / permissions from the model if the account is valid in Active Directory. It is also important to note that no authentication takes place off of the model. All authentication is done from Active Directory and if they are removed from AD but still in a users table they WILL NOT be able to log in.
+
+***Breaking change since Laravel 4.1.26 :***
+
+Before you save, for the first time, the user in the database, you need to do this:
+
+```php
+<?php
+
+use Illuminate\Auth\UserInterface;
+use Illuminate\Auth\Reminders\RemindableInterface;
+
+class User extends Eloquent implements UserInterface, RemindableInterface {
+
+    public static function boot()
+    {
+        parent::boot();
+        Event::listen('auth.login', function ($ldapUser) {
+            $user = App::make('User');
+            //...
+            $user->setRememberToken($ldapUser->getRememberToken());
+            //...
+            $user->save();
+        });
+    }
+
+}
+```
+
+To upgrade your Laravel application, you can also read [this guide](http://laravel.com/docs/upgrade#upgrade-4.1.26).
+
+And watch [this video](https://laracasts.com/lessons/laravel-updating-to-4-1-26).
