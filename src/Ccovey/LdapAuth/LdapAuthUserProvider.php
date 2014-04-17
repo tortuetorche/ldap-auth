@@ -58,7 +58,10 @@ class LdapAuthUserProvider implements Auth\UserProviderInterface
 			$ldapUserInfo = $this->setInfoArray($infoCollection);
 
 			if ($this->model) {
-				$model = $this->createModel()->newQuery()->where($this->getUsernameField(), $identifier)->first();
+				$model = $this->createModel()
+									->newQuery()
+									->where($this->getUsernameField(), $identifier)
+									->first();
 
 				if ( ! is_null($model) ) {
 					return $this->addLdapToModel($model, $ldapUserInfo);
@@ -66,6 +69,50 @@ class LdapAuthUserProvider implements Auth\UserProviderInterface
 			}
 
 			return new LdapUser((array) $ldapUserInfo);
+		}
+	}
+
+	/**
+	 * Retrieve a user by by their unique identifier and "remember me" token.
+	 *
+	 * @param  mixed  $identifier
+	 * @param  string  $token
+	 * @return \Illuminate\Auth\UserInterface|null
+	 */
+	public function retrieveByToken($identifier, $token)
+	{
+		if ($this->model) {
+			$model = $this->createModel();
+
+			return $model->newQuery()
+							->where($this->getUsernameField(), $identifier)
+							->where($model->getRememberTokenName(), $token)
+							->first();
+		}
+	}
+
+	/**
+	 * Update the "remember me" token for the given user in storage.
+	 *
+	 * @param  \Illuminate\Auth\UserInterface  $user
+	 * @param  string  $token
+	 * @return void
+	 */
+	public function updateRememberToken(Auth\UserInterface $user, $token)
+	{
+		if ($this->model) {
+			$model = $this->createModel()
+								->newQuery()
+								->where($this->getUsernameField(), $user->getAuthIdentifier())
+								->first();
+			if ( ! is_null($model) ) {
+				$model->setAttribute($model->getRememberTokenName(), $token);
+				if (is_a($model, '\Ardent')) {
+					$model->forceSave();
+				} else {
+					$model->save();
+				}
+			}
 		}
 	}
 
