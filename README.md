@@ -105,11 +105,16 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     {
         parent::boot();
         Event::listen('auth.login', function ($ldapUser) {
-            $user = App::make('User');
-            //...
-            $user->setRememberToken($ldapUser->getRememberToken());
-            //...
-            $user->save();
+            $ldapIdentifier = Config::get('auth.username_field', 'username');
+            $user = App::make('User')->where($ldapIdentifier, $ldapUser->$ldapIdentifier)->first();
+            // Create the user in the database
+            if (is_null($user)) {
+              $user = App::make('User');
+              // You can fill the user attributes here
+              // ...
+              $user->setRememberToken($ldapUser->getRememberToken());
+              $user->save();
+            }
         });
     }
 
