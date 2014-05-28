@@ -125,7 +125,7 @@ class LdapAuthUserProvider implements Auth\UserProviderInterface
 	public function retrieveByCredentials(array $credentials)
 	{
 		if (! $user = $credentials[$this->getUsernameField()]) {
-			throw new InvalidArgumentException;
+			throw new \InvalidArgumentException('"'.$this->getUsernameField().'" field is missing');
 		}
 
 		if ($this->model) {
