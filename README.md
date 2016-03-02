@@ -19,6 +19,10 @@ To install this [Active Directory LDAP Authentication](https://github.com/ccovey
   "repositories": [{
     "type": "vcs",
     "url": "https://github.com/tortuetorche/ldap-auth"
+  },
+  {
+    "type": "vcs",
+    "url": "https://github.com/tortuetorche/adLDAP"
   }],
   ...
 }
