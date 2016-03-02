@@ -17,7 +17,7 @@
         "illuminate/support": "4.*",
         "illuminate/auth": "4.*",
         "illuminate/config": "4.*",
-        "adldap/adldap": "dev-master#ee471d2243124dcf29efd8c079456cc56e2fa6e7"
+        "adldap/adldap": "dev-master#ee471d2243124dcf29efd8c079456cc56e2fa6e7 as dev-master"
     },
     "require-dev": {
         "mockery/mockery": "dev-master"
